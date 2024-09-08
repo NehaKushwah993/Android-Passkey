@@ -4,61 +4,63 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetPasswordOption
-import androidx.credentials.PasswordCredential
 import androidx.lifecycle.lifecycleScope
 import com.nehak.passkey_example.ui.theme.PassKeyExampleTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// Main activity that sets the content and theme for the login screen
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PassKeyExampleTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreenUI()
+                    LoginScreen()
                 }
             }
         }
     }
 }
 
+// Main composable function for the login screen
 @Composable
-fun LoginScreenUI() {
+fun LoginScreen() {
+    // State variables for credential status, user ID, and password
+    var credentialState by remember { mutableStateOf<CredentialState>(CredentialState.Loading) }
+    var userId by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-    var loginStatus by remember { mutableStateOf("") }
-    val credentialManager = CredentialManager.create(LocalContext.current)
+    // Get the context and create a CredentialManager instance
     val context = LocalContext.current
+    val credentialManager = CredentialManager.create(context)
 
-    // UI Elements for login (Username & Password)
+    // LaunchedEffect to retrieve credentials and handle login logic
+    LaunchedEffect(Unit) {
+        retrieveCredentials(context, credentialManager) { state ->
+            credentialState = state
+            if (state is CredentialState.Success) {
+                userId = state.userId
+                password = state.password
+                context.startActivity(Intent(context, MainActivity::class.java))
+            }
+        }
+    }
+
+    // Layout for the login screen
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,61 +70,89 @@ fun LoginScreenUI() {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
+        // Information text for credential management
         Text(
             textAlign = TextAlign.Center,
-            text = "If credentials exists in credential manager then it will work, otherwise manual login will be presented"
+            text = "If credentials exist, a popup will appear for selection. If not, perform manual login to save credentials."
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // Heading for the login screen
+        Text(text = "Login", style = MaterialTheme.typography.headlineSmall)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Username input field
+        TextField(
+            value = userId,
+            onValueChange = { userId = it },
+            label = { Text("Username") }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Login button
-        Button({
-            loginStatus = "Attempting login..."
+        // Password input field with hidden characters
+        TextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation()
+        )
 
-            // Launch a coroutine to handle credential request
-            (context as ComponentActivity).lifecycleScope.launch {
-                try {
-                    val response = credentialManager.getCredential(
-                        context = context,
-                        GetCredentialRequest(credentialOptions = listOf(GetPasswordOption()))
-                    )
+        Spacer(modifier = Modifier.height(16.dp))
 
-                    val credential = response.credential
-                    if (credential is PasswordCredential) {
-                        // successful login
-                        loginStatus = "Login Successful with existing credentials: ${credential.id}"
-                        delay(1000L)
-                        loginStatus = ""
-                        context.startActivity(Intent(context, MainActivity::class.java))
-                    }
-                } catch (_: Exception) {
-                    loginStatus = "No existing credentials, login with credentials first..."
-                    // then login
-                    delay(1000L)
-                    loginStatus = ""
-                    context.startActivity(Intent(context, SignupActivity::class.java))
-                }
-
-            }
-
-        }) {
-            Text(text = "Login")
+        // Show a loading spinner if credentials are being retrieved
+        if (credentialState is CredentialState.Loading) {
+            CircularProgressIndicator()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = loginStatus, textAlign = TextAlign.Center)
+        // Button to perform login and save credentials
+        Button(onClick = {
+            (context as ComponentActivity).lifecycleScope.launch {
+                saveCredentials(context, userId, password, onSaveCredentialStateChanged = {
+                    credentialState = it
+                    if (it is CredentialState.Success) {
 
+                        // Login success
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    }
+                })
+            }
+        }) {
+            Text("Login")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display status message based on the credential state
+        when (credentialState) {
+            is CredentialState.Success -> {
+                Text(
+                    text = "Login successful with user ID: ${(credentialState as CredentialState.Success).userId}",
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            is CredentialState.Error -> {
+                Text(
+                    text = (credentialState as CredentialState.Error).message,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            else -> Unit
+        }
     }
-
-
 }
 
-
+// Preview of the LoginScreen composable
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview2() {
+fun PreviewLoginScreen() {
     PassKeyExampleTheme {
-        LoginScreenUI()
+        LoginScreen()
     }
 }

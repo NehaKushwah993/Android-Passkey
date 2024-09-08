@@ -71,6 +71,10 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    // To retrieve and store credentials using Credential Manager API
     implementation("androidx.credentials:credentials:1.2.2") // Credential Manager API
 
+    // Google Play Services must be enabled on the device to use Credential Manager.
+    // Add this dependency to handle errors if Google Play Services is not enabled.
+    implementation("com.google.android.gms:play-services-base:18.5.0")
 }

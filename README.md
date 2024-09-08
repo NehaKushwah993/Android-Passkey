@@ -1,21 +1,19 @@
 # Android Passkey Example
 
-Welcome to the **Android Passkey Example!** 🎉 This app demonstrates using **Kotlin** and **Jetpack Compose** with Android's Credential Manager API for handling passkeys.
+Welcome to the **Android Passkey Example!** 🎉 This app showcases **Kotlin** and **Jetpack Compose** with Android's Credential Manager API, including support for biometrics.
 
-A medium article about passkey : [Click here](https://medium.com/@n20/simplifying-logins-in-android-with-passkeys-a-quick-guide-08ed67e15619)
+**Medium Article**: [Click here](https://medium.com/@n20/simplifying-logins-in-android-with-passkeys-a-quick-guide-08ed67e15619)
 
-## Features
+### How It Works
 
-- **Login Button**: Start with a single button.
-- **Automatic Redirect**: If credentials exist, go straight to the home page.
-- **Manual Login Option**: If no credentials are found, you can manually log in.
+- **On Launch**: Displays a popup with existing credentials or biometric options if available; otherwise, provides manual login options and saves new credentials.
 
 ## Getting Started
 
 ### Prerequisites
 
 - **Android Studio**
-- **Android 13 (API level 33)** or higher on your emulator/device
+- **Android 13 (API level 33)** or higher
 - **Google Play Services** enabled
 
 ### Setup
@@ -36,18 +34,12 @@ A medium article about passkey : [Click here](https://medium.com/@n20/simplifyin
    - Connect your device or start your emulator
    - Click **Run** in Android Studio
 
-### How It Works
-
-1. **Initial Screen**: Shows only a login button.
-2. **Login Click**:
-   - **If Credentials Exist**: Redirects to the home page.
-   - **If No Credentials**: Displays manual login options.
-
 ### Demo Video
 
 Watch the demo here:
 
-https://github.com/user-attachments/assets/54ce6437-f0b8-4a16-9994-e6b92506e258
+https://github.com/user-attachments/assets/ef435009-ddde-4f81-84f2-438cc4b034bc
+
 
 ### License
 
@@ -55,4 +47,6 @@ MIT License. See the [LICENSE](LICENSE) file.
 
 ### Contact
 
-Need help? Please [create an issue](https://github.com/your-username/android-passkey-example/issues) on GitHub.
+Need help? [Create an issue](https://github.com/NehaKushwah993/Android-Passkey/issues) on GitHub.
+
+---

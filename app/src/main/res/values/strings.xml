@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PassKey-Example</string>
+    <string name="title_activity_login_screen">LoginScreen</string>
+    <string name="title_activity_login">LoginActivity</string>
+</resources>

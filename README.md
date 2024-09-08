@@ -2,7 +2,7 @@
 
 Welcome to the **Android Passkey Example!** 🎉 This app demonstrates using **Kotlin** and **Jetpack Compose** with Android's Credential Manager API for handling passkeys.
 
-A medium article about passkey : https://medium.com/p/08ed67e15619/edit
+A medium article about passkey : [Click here](https://medium.com/@n20/simplifying-logins-in-android-with-passkeys-a-quick-guide-08ed67e15619)
 
 ## Features
 
